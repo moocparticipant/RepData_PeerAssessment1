@@ -18,8 +18,8 @@ readData <- function(){
  				
   ### READING data  
   activityMonitoring <- read.csv("activity.csv", header = TRUE)
-  ## steps       date interval
-  ## 1    NA 2012-10-01        0
-  ## 2    NA 2012-10-01        5
+  ##      steps       date          interval
+  ## 1    NA         2012-10-01        0
+  ## 2    NA         2012-10-01        5
   activityMonitoring
 }
