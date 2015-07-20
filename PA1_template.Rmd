@@ -45,7 +45,7 @@ DailyTotal <- ddply(NARemovedSteps, "date", summarise, sum = sum(steps))
 ```
 Next we create a histogram of total number of steps
 ```{r, echo=TRUE}
-hist(DailyTotal$sum, xlab = "Daily Total", ylab = "Frequency", main = "Histogram of Daily Total of Steps" )
+hist(DailyTotal$sum, xlab = "Daily Total", ylab = "Frequency", main = "Histogram of Daily Total of Steps", breaks = 20 )
 ```
 ### Mean steps per day
 ```{r, echo=TRUE}
@@ -126,7 +126,7 @@ NARemovedSteps <- dateSteps[complete.cases(dateSteps),] #remove all NAs
 #using ddply summarise steps by date
 DailyTotalx <- ddply(NARemovedSteps, "date", summarise, sum = sum(steps))
 	
-	hist(DailyTotalx$sum, xlab = "Daily Total", ylab = "Frequency", main = "Histogram of Daily Total of Steps with No missing values" )
+	hist(DailyTotalx$sum, xlab = "Daily Total", ylab = "Frequency", main = "Histogram of Daily Total of Steps with No missing values", breaks = 20)
 
 ```
 Calculate Mean
