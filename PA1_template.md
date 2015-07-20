@@ -12,7 +12,8 @@ The variables included in this dataset are:
 
 ##Loading the data
 
-```{r, echo=TRUE }
+
+```r
 library(plyr)
 #================================================
 #This function returns data required for plotting
@@ -33,30 +34,43 @@ library(plyr)
   ##      steps       date          interval
   ## 1    NA         2012-10-01        0
   ## 2    NA         2012-10-01        5
-  
 ```
 For the rest of the analysis we ignore missing data and calcualte steps for each day
-```{r, echo=TRUE}
+
+```r
 dateSteps <- data[, c(1,2)]# only take date and steps columns
 NARemovedSteps <- dateSteps[complete.cases(dateSteps),] #remove all NAs
 #using ddply summarise steps by date
 DailyTotal <- ddply(NARemovedSteps, "date", summarise, sum = sum(steps))
-
 ```
 Next we create a histogram of total number of steps
-```{r, echo=TRUE}
+
+```r
 hist(DailyTotal$sum, xlab = "Daily Total", ylab = "Frequency", main = "Histogram of Daily Total of Steps" )
 ```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
 ### Mean steps per day
-```{r, echo=true}
+
+```r
 mean(DailyTotal$sum)
 ```
+
+```
+## [1] 10766.19
+```
 ### Median steps taken per day
-```{r, echo=FALSE}
+
+```r
 median (DailyTotal$sum)
 ```
+
+```
+## [1] 10765
+```
 ## Average Daily activity pattern
-```{r, echo=TRUE}
+
+```r
 ##      steps       date          interval
   ## 1    NA         2012-10-01        0
   ## 2    NA         2012-10-01        5
@@ -72,16 +86,31 @@ median (DailyTotal$sum)
   maxAvg = max(intervalAvg$sum) #find maximum value
   maxrow <- subset(intervalAvg,sum == maxAvg)#find the row with max value 
   abline (v= maxrow[1,1], col = "blue" ) #draw vertical line to show the max value interval
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
+
+```r
   maxrow[1,1]
+```
+
+```
+## [1] 835
 ```
 ## Next task is to replace missing values with average for that day
 Total number of missing values in the data set is calculated by:
-```{r, echo=TRUE}
+
+```r
 NARemovedData <- data[complete.cases(data),]
 nrow(data) - nrow (NARemovedData)
 ```
+
+```
+## [1] 2304
+```
 Using the strategy create a new data set
-``` {r}
+
+```r
 	NARemovedSteps <- dateSteps[complete.cases(data),] #remove all NAs
 	DailyAvg <- ddply(NARemovedSteps, "date", summarise, avg = round(mean(steps)))#rounded value
 	NoNAs <- data #[c(1,2, 17568, 16858),]
@@ -120,44 +149,105 @@ Using the strategy create a new data set
 ```
 Now using the new data set again make histogram and calculate mean and median.
 
-``` {r}
+
+```r
 	dateSteps <- x[, c(1,2)]# only take date and steps columns
 NARemovedSteps <- dateSteps[complete.cases(dateSteps),] #remove all NAs
 #using ddply summarise steps by date
 DailyTotalx <- ddply(NARemovedSteps, "date", summarise, sum = sum(steps))
 	
 	hist(DailyTotalx$sum, xlab = "Daily Total", ylab = "Frequency", main = "Histogram of Daily Total of Steps with No missing values" )
-
 ```
+
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png) 
 Calculate Mean
 
-``` {r}
+
+```r
 	mean(DailyTotalx$sum)
+```
 
 ```
+## [1] 9354.23
+```
 Calculate Median
-``` {r}
-		median(DailyTotalx$sum)
 
+```r
+		median(DailyTotalx$sum)
+```
+
+```
+## [1] 10395
 ```
 ###Do the values differ
 
 #### mean
-``` {r}
+
+```r
 	if (mean(DailyTotalx$sum) == mean(DailyTotalx$sum))
 	  print ("mean is the same")
-	
+```
+
+```
+## [1] "mean is the same"
+```
+
+```r
 	if (mean(DailyTotalx$sum) != mean(DailyTotalx$sum))
     print ("mean differs")
-``` 
+```
 #### median
-``` {r}
+
+```r
 if (median(DailyTotalx$sum) == median(DailyTotal$sum))
 	 print ("median is the same")
 
 if (median(DailyTotalx$sum) != median(DailyTotal$sum))
 	 print ("median differ")
-
 ```
 
+```
+## [1] "median differ"
+```
+This shows that there is a difference of Median but not the mean
 
+## Activity patterns Weekdays and Weekends
+
+To identify which day of the week I used weekdays() function. I wrote a function to be used with sapply() to find out whether a given day is a week day or weekend
+
+
+```r
+	day.type <- function (day){
+	if (day == "Saturday" || day == "Sunday"){
+		return ("weekend") #weekend
+	}
+	else{
+		return ("weekday") #weekday
+	}
+}
+```
+By using sapply with the day.type function I wrote I created a vector to be added to the data set
+
+
+```r
+# data set that will be used is x
+z <- sapply(weekdays(as.Date(x$date)), FUN = day.type )
+#convert to factor variable and append it to the data set
+NoNAs$day <-as.factor(z)
+```
+Now using lattice package I plot the weekday average and Weekend averages	
+
+```r
+library(lattice)
+panelplot <- function (NoNAs) {
+	#average the values 
+	#calculate average for each interval peroid across weekdays and weekends
+    avgSteps <- aggregate(NoNAs$steps, list(interval = as.numeric(NoNAs$interval), day = NoNAs$day), FUN=mean)
+	xyplot (avgSteps$x ~ avgSteps$interval | as.factor(avgSteps$day), layout = c(1,2), type = "l", xlab = "Interval", ylab = "Number of Steps")
+}
+
+panelplot(NoNAs)
+```
+
+![plot of chunk latticeplot](figure/latticeplot-1.png) 
+From the panel plots it can be seen that during the weekend people tend to be more active in the latter part of the day as opposed to weekdays where people are more active in the morning.
