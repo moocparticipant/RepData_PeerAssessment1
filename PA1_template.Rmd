@@ -48,11 +48,11 @@ Next we create a histogram of total number of steps
 hist(DailyTotal$sum, xlab = "Daily Total", ylab = "Frequency", main = "Histogram of Daily Total of Steps" )
 ```
 ### Mean steps per day
-```{r, echo=true}
+```{r, echo=TRUE}
 mean(DailyTotal$sum)
 ```
 ### Median steps taken per day
-```{r, echo=FALSE}
+```{r, echo = TRUE}
 median (DailyTotal$sum)
 ```
 ## Average Daily activity pattern
@@ -159,5 +159,40 @@ if (median(DailyTotalx$sum) != median(DailyTotal$sum))
 	 print ("median differ")
 
 ```
+This shows that there is a difference of Median but not the mean
 
+## Activity patterns Weekdays and Weekends
 
+To identify which day of the week I used weekdays() function. I wrote a function to be used with sapply() to find out whether a given day is a week day or weekend
+
+``` {r}
+	day.type <- function (day){
+	if (day == "Saturday" || day == "Sunday"){
+		return ("weekend") #weekend
+	}
+	else{
+		return ("weekday") #weekday
+	}
+}
+```
+By using sapply with the day.type function I wrote I created a vector to be added to the data set
+
+``` {r}
+# data set that will be used is x
+z <- sapply(weekdays(as.Date(x$date)), FUN = day.type )
+#convert to factor variable and append it to the data set
+NoNAs$day <-as.factor(z)
+```
+Now using lattice package I plot the weekday average and Weekend averages	
+``` {r latticeplot, echo = TRUE}
+library(lattice)
+panelplot <- function (NoNAs) {
+	#average the values 
+	#calculate average for each interval peroid across weekdays and weekends
+    avgSteps <- aggregate(NoNAs$steps, list(interval = as.numeric(NoNAs$interval), day = NoNAs$day), FUN=mean)
+	xyplot (avgSteps$x ~ avgSteps$interval | as.factor(avgSteps$day), layout = c(1,2), type = "l", xlab = "Interval", ylab = "Number of Steps")
+}
+
+panelplot(NoNAs)
+```
+From the panel plots it can be seen that during the weekend people tend to be more active in the latter part of the day as opposed to weekdays where people are more active in the morning.
