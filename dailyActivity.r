@@ -51,7 +51,7 @@ fillMissing <- function (data){
 		#this element is not NA
 		#so add that value to the vector newSteps
 		newSteps <- c(newSteps,NoNAs[i, c(1)])
-		print("#")
+		#print("#")
 	  }
 	}
 	#Now the newSteps have all the values for the missing values in them
@@ -63,7 +63,7 @@ fillMissing <- function (data){
 	colnames(NoNAs)[3] <- "steps"
 	#reorder columns to have # steps date interval
 	x <- NoNAs[, c(3,1,2)]
-	x
+	
 }
 
 
